@@ -31,12 +31,14 @@ graph = StateGraph(State)
 
 # Nodes
 def duckduckgo_search(state):
+    """Node for websearch"""
     search = DuckDuckGoSearchRun()
     question = state['question']
     search_result = search.invoke(question)
     return {'context': [search_result]}
 
 def wiki_search(state):
+    """Node for wikipedia search"""
     question = state['question']
     documents = WikipediaLoader(question, load_max_docs=5).load()
     search_result = []
@@ -47,7 +49,7 @@ def wiki_search(state):
 
 def model_call(state):
     context = '\n'.join(state['context'])
-    prompt = (f"context: {context}\n Answer the question: {state['question']} using the context above, if the answer does not present in the context say it")
+    prompt = (f"context: {context}\n Answer the questions below using the context above, if the answer does not present in the context say it, Here is the questions {state['question']}")
     return {'answer': model.invoke(prompt)}
 
 graph.add_node('wiki', wiki_search)
@@ -61,7 +63,7 @@ graph.add_edge('duck','model')
 graph.add_edge('model',END)
 graph = graph.compile()
 
-if __name__ =='__main__':
+if __name__  == '__main__':
     user_query = input('Enter your prompt here: ')
     print('model genarating...')
     graph_result = graph.invoke({'question': user_query})
